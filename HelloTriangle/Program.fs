@@ -1,11 +1,8 @@
-﻿module LearnOpenTK
-
+﻿module HelloTriangle
 open OpenTK.Mathematics
 open OpenTK.Windowing.Common
 open OpenTK.Windowing.Desktop
 open Window
-
-
 
 [<EntryPoint>]
 let main argv =

@@ -4,6 +4,7 @@ open OpenTK.Graphics.OpenGL4
 open OpenTK.Windowing.Common
 open OpenTK.Windowing.GraphicsLibraryFramework
 open OpenTK.Windowing.Desktop
+open LearnOpenTK.Common
 
 type Window(gameWindowSettings, nativeWindowSettings) =
     inherit GameWindow(gameWindowSettings, nativeWindowSettings)
@@ -24,28 +25,7 @@ type Window(gameWindowSettings, nativeWindowSettings) =
     let mutable fragmentShader = 0
     let mutable program = 0
     let mutable _shader = 0
-    //Vertex shader source string
-    let vertexSource = """
-        #version 330
-
-        layout(location = 0) in vec3 aPosition;
-
-        void main(void)
-        {
-            gl_Position = vec4(aPosition, 1.0);
-        }
-        """
-//Fragment shader source string        
-    let fragmentSource = """
-        #version 330
-
-        out vec4 outputColor;
-
-        void main(void)
-        {
-	        outputColor = vec4(1.0, 1.0, 0.0, 1.0);
-        }
-        """
+    let _shader = new Shader("Shaders/shader.vert", "Shaders/shader.frag")   
             
         
     override this.OnLoad() =
@@ -56,27 +36,8 @@ type Window(gameWindowSettings, nativeWindowSettings) =
         _vertexArrayObject <- GL.GenVertexArray()
         GL.BindVertexArray _vertexArrayObject
         GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof<float32>, 0)
-        GL.EnableVertexAttribArray 0
-        vertexShader <-
-            let shader = GL.CreateShader(ShaderType.VertexShader)
-            GL.ShaderSource(shader, vertexSource)
-            GL.CompileShader(shader)
-            shader
-        
-        fragmentShader <-
-            let shader = GL.CreateShader(ShaderType.FragmentShader)
-            GL.ShaderSource(shader, fragmentSource)
-            GL.CompileShader(shader)
-            shader
-                
-        program <- 
-            let program = GL.CreateProgram()
-            GL.AttachShader(program, vertexShader)
-            GL.AttachShader(program, fragmentShader)
-            GL.LinkProgram(program)
-            program
-            
-        GL.UseProgram program            
+        GL.EnableVertexAttribArray 0        
+        _shader.Use()          
             
     override this.OnRenderFrame(e) =
         base.OnRenderFrame e
