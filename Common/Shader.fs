@@ -22,22 +22,24 @@ type Shader(vertPath:string, fragPath:string) =
         // The fragment shader is what we'll be using the most here.
 
         // Load vertex shader and compile
-        let mutable shaderSource = File.ReadAllText vertPath
+        let mutable shaderSource = File.ReadAllText(vertPath)
+        printfn $"{shaderSource}"
         
         // GL.CreateShader will create an empty shader (obviously). The ShaderType enum denotes which type of shader will be created.
-        let vertexShader = GL.CreateShader ShaderType.VertexShader
+        let vertexShader = GL.CreateShader(ShaderType.VertexShader)
         
         // Now, bind the GLSL source code
         GL.ShaderSource(vertexShader, shaderSource)
         
         // And then compile
-        GL.CompileShader vertexShader
+        GL.CompileShader(vertexShader)
         
         // We do the same for the fragment shader.
-        shaderSource <- File.ReadAllText fragPath
-        let fragmentShader = GL.CreateShader ShaderType.FragmentShader
+        shaderSource <- File.ReadAllText(fragPath)
+        printfn $"{shaderSource}"
+        let fragmentShader = GL.CreateShader(ShaderType.FragmentShader)
         GL.ShaderSource(fragmentShader, shaderSource)
-        GL.CompileShader fragmentShader
+        GL.CompileShader(fragmentShader)
         
         // These two shaders must then be merged into a shader program, which can then be used by OpenGL.
         // To do this, create a program...
@@ -48,7 +50,7 @@ type Shader(vertPath:string, fragPath:string) =
         GL.AttachShader(Handle, fragmentShader)
         
         // And then link them together.
-        GL.LinkProgram Handle
+        GL.LinkProgram(Handle)
         
         // When the shader program is linked, it no longer needs the individual shaders attached to it; the compiled code is copied into the shader program.
         // Detach them, and then delete them.
@@ -72,7 +74,7 @@ type Shader(vertPath:string, fragPath:string) =
         // These values are discarded via use of underscores when calling GL.GetActiveUniform
         let mutable _i = 0 // Discarded value
         let mutable _aut:ActiveUniformType = ActiveUniformType.Float // Discarded value
-        for i in 0..numberOfUniforms do
+        for i in 0..numberOfUniforms - 1 do
             // Original C# code discards two out parameters GL.GetActiveUniform(Handle, i, out _, out _)
             // get the name of this uniform,
             let key = GL.GetActiveUniform(Handle, i, ref _i, ref _aut)
@@ -85,7 +87,7 @@ type Shader(vertPath:string, fragPath:string) =
             
     member this.compileShader(shader:int) =
         // Try to compile the shader
-        GL.CompileShader shader
+        GL.CompileShader(shader)
         
         // Check for compilation errors
         let mutable code = 0
@@ -97,7 +99,7 @@ type Shader(vertPath:string, fragPath:string) =
             
     member this.linkProgram(program:int) =
         // We link the program
-        GL.LinkProgram program
+        GL.LinkProgram(program)
         
         // Check for linking errors
         let mutable code = 0
@@ -108,7 +110,7 @@ type Shader(vertPath:string, fragPath:string) =
             
     // A wrapper function that enables the shader program.
     member this.Use() =
-        GL.UseProgram Handle
+        GL.UseProgram(Handle)
         
     // The shader sources provided with this project use hardcoded layout(location)-s. If you want to do it dynamically,
     // you can omit the layout(location=X) lines in the vertex shader, and use this in VertexAttribPointer instead of the hardcoded values.

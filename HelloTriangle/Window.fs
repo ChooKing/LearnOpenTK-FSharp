@@ -1,7 +1,6 @@
 ﻿module Window
 
 open OpenTK.Graphics.OpenGL4
-open OpenTK.Windowing.Common
 open OpenTK.Windowing.GraphicsLibraryFramework
 open OpenTK.Windowing.Desktop
 open LearnOpenTK.Common
@@ -20,15 +19,13 @@ type Window(gameWindowSettings, nativeWindowSettings) =
 
     // What these objects are will be explained in OnLoad.
     let mutable _vertexBufferObject = 0
-    let mutable _vertexArrayObject = 0
-    let mutable vertexShader = 0
-    let mutable fragmentShader = 0
-    let mutable program = 0
-    let mutable _shader = 0
-    let _shader = new Shader("Shaders/shader.vert", "Shaders/shader.frag")   
+    let mutable _vertexArrayObject = 0    
+    let mutable program = 0    
+    let _shader = Shader("Shaders/shader.vert", "Shaders/shader.frag")
             
         
     override this.OnLoad() =
+        base.OnLoad()
         GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f)
         _vertexBufferObject <- GL.GenBuffer()
         GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject)
@@ -36,13 +33,13 @@ type Window(gameWindowSettings, nativeWindowSettings) =
         _vertexArrayObject <- GL.GenVertexArray()
         GL.BindVertexArray _vertexArrayObject
         GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof<float32>, 0)
-        GL.EnableVertexAttribArray 0        
+        GL.EnableVertexAttribArray(0)        
         _shader.Use()          
             
     override this.OnRenderFrame(e) =
         base.OnRenderFrame e
-        GL.Clear(ClearBufferMask.ColorBufferBit)
-        GL.UseProgram program
+        GL.Clear(ClearBufferMask.ColorBufferBit)        
+        _shader.Use()
         GL.BindVertexArray _vertexArrayObject
         GL.DrawArrays(PrimitiveType.Triangles, 0, 3)
         this.SwapBuffers()
