@@ -22,8 +22,7 @@ type Shader(vertPath:string, fragPath:string) =
         // The fragment shader is what we'll be using the most here.
 
         // Load vertex shader and compile
-        let mutable shaderSource = File.ReadAllText(vertPath)
-        printfn $"{shaderSource}"
+        let mutable shaderSource = File.ReadAllText(vertPath)        
         
         // GL.CreateShader will create an empty shader (obviously). The ShaderType enum denotes which type of shader will be created.
         let vertexShader = GL.CreateShader(ShaderType.VertexShader)
@@ -35,8 +34,7 @@ type Shader(vertPath:string, fragPath:string) =
         GL.CompileShader(vertexShader)
         
         // We do the same for the fragment shader.
-        shaderSource <- File.ReadAllText(fragPath)
-        printfn $"{shaderSource}"
+        shaderSource <- File.ReadAllText(fragPath)        
         let fragmentShader = GL.CreateShader(ShaderType.FragmentShader)
         GL.ShaderSource(fragmentShader, shaderSource)
         GL.CompileShader(fragmentShader)
