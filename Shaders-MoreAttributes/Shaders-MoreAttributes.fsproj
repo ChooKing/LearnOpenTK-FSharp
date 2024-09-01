@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <RootNamespace>Shaders_MoreAttributes</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="../Common/Shader.fs" />
+        <Compile Include="Window.fs" />
+        <Compile Include="Program.fs" />        
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="OpenTK" Version="4.8.2" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="Shaders\*.*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+</Project>
