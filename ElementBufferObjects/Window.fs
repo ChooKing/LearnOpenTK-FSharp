@@ -34,7 +34,7 @@ type Window(gameWindowSettings: GameWindowSettings, nativeWindowSettings: Native
     let mutable _vertexBufferObject = 0
     let mutable _vertexArrayObject = 0
     [<DefaultValue>]
-    val mutable public _shader: Shader    
+    val mutable private _shader: Shader    
     
     // Add a handle for the EBO
     let mutable _elementBufferObject = 0
