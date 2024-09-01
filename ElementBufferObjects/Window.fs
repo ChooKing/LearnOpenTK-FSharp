@@ -13,7 +13,7 @@ open OpenTK.Windowing.Desktop
 
 // OpenGL provides a way to reuse vertices, which can heavily reduce memory usage on complex objects.
 // This is called an Element Buffer Object. This tutorial will be all about how to set one up.
-type Window(gameWindowSettings: GameWindowSettings, nativeWindowSettings: NativeWindowSettings) =
+type Window(gameWindowSettings: GameWindowSettings, nativeWindowSettings: NativeWindowSettings) as this =
     inherit GameWindow(gameWindowSettings, nativeWindowSettings)
     
     // We modify the vertex array to include four vertices for our rectangle.
@@ -33,8 +33,8 @@ type Window(gameWindowSettings: GameWindowSettings, nativeWindowSettings: Native
     |]
     let mutable _vertexBufferObject = 0
     let mutable _vertexArrayObject = 0
-    // _shader is initialized at a later point in the original C# code
-    let _shader = new Shader("Shaders/shader.vert", "Shaders/shader.frag")
+    [<DefaultValue>]
+    val mutable public _shader: Shader    
     
     // Add a handle for the EBO
     let mutable _elementBufferObject = 0
@@ -62,13 +62,13 @@ type Window(gameWindowSettings: GameWindowSettings, nativeWindowSettings: Native
         // We also upload data to the EBO the same way as we did with VBOs.
         GL.BufferData(BufferTarget.ElementArrayBuffer, nativeint(_indices.Length * sizeof<float32>), _indices, BufferUsageHint.StaticDraw)
         // The EBO has now been properly setup. Go to the Render function to see how we draw our rectangle now!
-        
-        _shader.Use()
+        this._shader <- new Shader("Shaders/shader.vert", "Shaders/shader.frag")
+        this._shader.Use()
 
     override this.OnRenderFrame(e: FrameEventArgs) =
         base.OnRenderFrame(e)
         GL.Clear(ClearBufferMask.ColorBufferBit)
-        _shader.Use()
+        this._shader.Use()
         
         // Because ElementArrayObject is a property of the currently bound VAO,
         // the buffer you will find in the ElementArrayBuffer will change with the currently bound VAO.
