@@ -10,11 +10,13 @@ open OpenTK.Mathematics
 // Shaders are written in GLSL, which is a language very similar to C in its semantics.
 // The GLSL source is compiled *at runtime*, so it can optimize itself for the graphics card it's currently being used on.
 // A commented example of GLSL can be found in shader.vert.
-type Shader(vertPath:string, fragPath:string) =
-    //These values are only declared and not initialized yet in the original C# version
-    let mutable Handle = 0         
+type Shader(vertPath:string, fragPath:string) as this =    
+    [<DefaultValue>]
+    val mutable public Handle: int
+    
+    //This only declared and not initialized yet in the original C# version
     let mutable _uniformLocations = Map.empty<string, int> 
-    do
+    do        
         // There are several different types of shaders, but the only two you need for basic rendering are the vertex and fragment shaders.
         // The vertex shader is responsible for moving around vertices, and uploading that data to the fragment shader.
         // The vertex shader won't be too important here, but they'll be more important later.
@@ -40,20 +42,20 @@ type Shader(vertPath:string, fragPath:string) =
         GL.CompileShader(fragmentShader)
         
         // These two shaders must then be merged into a shader program, which can then be used by OpenGL.
-        // To do this, create a program...
-        Handle <- GL.CreateProgram()
+        // To do this, create a program...        
+        this.Handle <- GL.CreateProgram()
         
         // Attach both shaders...
-        GL.AttachShader(Handle, vertexShader)
-        GL.AttachShader(Handle, fragmentShader)
+        GL.AttachShader(this.Handle, vertexShader)
+        GL.AttachShader(this.Handle, fragmentShader)
         
         // And then link them together.
-        GL.LinkProgram(Handle)
+        GL.LinkProgram(this.Handle)
         
         // When the shader program is linked, it no longer needs the individual shaders attached to it; the compiled code is copied into the shader program.
         // Detach them, and then delete them.
-        GL.DetachShader(Handle, vertexShader)
-        GL.DetachShader(Handle, fragmentShader)
+        GL.DetachShader(this.Handle, vertexShader)
+        GL.DetachShader(this.Handle, fragmentShader)
         GL.DeleteShader(fragmentShader)
         GL.DeleteShader(vertexShader)
         
@@ -63,7 +65,7 @@ type Shader(vertPath:string, fragPath:string) =
 
         // First, we have to get the number of active uniforms in the shader.
         let mutable numberOfUniforms = 0
-        GL.GetProgram(Handle, GetProgramParameterName.ActiveUniforms, ref numberOfUniforms)
+        GL.GetProgram(this.Handle, GetProgramParameterName.ActiveUniforms, ref numberOfUniforms)
         
         // The original C# initializes the _uniformLocations Dictionary here
         // Omitted in the F# because it was already initialized above        
@@ -75,10 +77,10 @@ type Shader(vertPath:string, fragPath:string) =
         for i in 0..numberOfUniforms - 1 do
             // Original C# code discards two out parameters GL.GetActiveUniform(Handle, i, out _, out _)
             // get the name of this uniform,
-            let key = GL.GetActiveUniform(Handle, i, ref _i, ref _aut)
+            let key = GL.GetActiveUniform(this.Handle, i, ref _i, ref _aut)
             
             // get the location,
-            let location = GL.GetUniformLocation(Handle, key)
+            let location = GL.GetUniformLocation(this.Handle, key)
             
             // and then add it to the dictionary.
             _uniformLocations <- _uniformLocations.Add(key, location)
@@ -108,12 +110,12 @@ type Shader(vertPath:string, fragPath:string) =
             
     // A wrapper function that enables the shader program.
     member this.Use() =
-        GL.UseProgram(Handle)
+        GL.UseProgram(this.Handle)
         
     // The shader sources provided with this project use hardcoded layout(location)-s. If you want to do it dynamically,
     // you can omit the layout(location=X) lines in the vertex shader, and use this in VertexAttribPointer instead of the hardcoded values.
     member this.GetAttribLocation(attribName:string) =
-        GL.GetAttribLocation(Handle, attribName)
+        GL.GetAttribLocation(this.Handle, attribName)
         
     // Uniform setters
     // Uniforms are variables that can be set by user code, instead of reading them from the VBO.
@@ -130,7 +132,7 @@ type Shader(vertPath:string, fragPath:string) =
     /// <param name="name">The name of the uniform</param>
     /// <param name="data">The data to set</param>
     member this.SetInt(name:string, data:int) =
-        GL.UseProgram(Handle)
+        GL.UseProgram(this.Handle)
         GL.Uniform1(_uniformLocations[name], data)
         
     /// <summary>
@@ -139,7 +141,7 @@ type Shader(vertPath:string, fragPath:string) =
     /// <param name="name">The name of the uniform</param>
     /// <param name="data">The data to set</param>
     member this.SetFloat(name:string, data:float) =
-        GL.UseProgram(Handle)
+        GL.UseProgram(this.Handle)
         GL.Uniform1(_uniformLocations[name], data)
         
     /// <summary>
@@ -153,7 +155,7 @@ type Shader(vertPath:string, fragPath:string) =
     ///   </para>
     /// </remarks>
     member this.SetMatrix4(name:string, data:Matrix4) =
-        GL.UseProgram(Handle)
+        GL.UseProgram(this.Handle)
         GL.UniformMatrix4(_uniformLocations[name], true, ref data)
         
     /// <summary>
@@ -162,7 +164,7 @@ type Shader(vertPath:string, fragPath:string) =
     /// <param name="name">The name of the uniform</param>
     /// <param name="data">The data to set</param>
     member this.SetVector3(name:string, data:Vector3) =
-        GL.UseProgram(Handle)
+        GL.UseProgram(this.Handle)
         GL.Uniform3(_uniformLocations[name], data)
             
             
