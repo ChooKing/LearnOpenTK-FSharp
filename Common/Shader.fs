@@ -14,8 +14,8 @@ type Shader(vertPath:string, fragPath:string) as this =
     [<DefaultValue>]
     val mutable public Handle: int
     
-    //This only declared and not initialized yet in the original C# version
-    let mutable _uniformLocations = Map.empty<string, int> 
+    [<DefaultValue>]
+    val mutable private _uniformLocations : Map<string, int> 
     do        
         // There are several different types of shaders, but the only two you need for basic rendering are the vertex and fragment shaders.
         // The vertex shader is responsible for moving around vertices, and uploading that data to the fragment shader.
@@ -65,7 +65,8 @@ type Shader(vertPath:string, fragPath:string) as this =
 
         // First, we have to get the number of active uniforms in the shader.
         let mutable numberOfUniforms = 0
-        GL.GetProgram(this.Handle, GetProgramParameterName.ActiveUniforms, ref numberOfUniforms)
+        GL.GetProgram(this.Handle, GetProgramParameterName.ActiveUniforms, &numberOfUniforms)
+        printfn $"Number of uniforms: {numberOfUniforms}"
         
         // The original C# initializes the _uniformLocations Dictionary here
         // Omitted in the F# because it was already initialized above        
@@ -74,6 +75,7 @@ type Shader(vertPath:string, fragPath:string) as this =
         // These values are discarded via use of underscores when calling GL.GetActiveUniform
         let mutable _i = 0 // Discarded value
         let mutable _aut:ActiveUniformType = ActiveUniformType.Float // Discarded value
+        this._uniformLocations <- Map.empty
         for i in 0..numberOfUniforms - 1 do
             // Original C# code discards two out parameters GL.GetActiveUniform(Handle, i, out _, out _)
             // get the name of this uniform,
@@ -83,7 +85,9 @@ type Shader(vertPath:string, fragPath:string) as this =
             let location = GL.GetUniformLocation(this.Handle, key)
             
             // and then add it to the dictionary.
-            _uniformLocations <- _uniformLocations.Add(key, location)
+            this._uniformLocations <- this._uniformLocations.Add(key, location)
+            
+        printfn $"{this._uniformLocations}"
             
     member this.compileShader(shader:int) =
         // Try to compile the shader
@@ -133,7 +137,7 @@ type Shader(vertPath:string, fragPath:string) as this =
     /// <param name="data">The data to set</param>
     member this.SetInt(name:string, data:int) =
         GL.UseProgram(this.Handle)
-        GL.Uniform1(_uniformLocations[name], data)
+        GL.Uniform1(this._uniformLocations[name], data)
         
     /// <summary>
     /// Set a uniform float on this shader.
@@ -142,7 +146,7 @@ type Shader(vertPath:string, fragPath:string) as this =
     /// <param name="data">The data to set</param>
     member this.SetFloat(name:string, data:float) =
         GL.UseProgram(this.Handle)
-        GL.Uniform1(_uniformLocations[name], data)
+        GL.Uniform1(this._uniformLocations[name], data)
         
     /// <summary>
     /// Set a uniform Matrix4 on this shader
@@ -156,7 +160,7 @@ type Shader(vertPath:string, fragPath:string) as this =
     /// </remarks>
     member this.SetMatrix4(name:string, data:Matrix4) =
         GL.UseProgram(this.Handle)
-        GL.UniformMatrix4(_uniformLocations[name], true, ref data)
+        GL.UniformMatrix4(this._uniformLocations[name], true, ref data)
         
     /// <summary>
     /// Set a uniform Vector3 on this shader.
@@ -165,7 +169,7 @@ type Shader(vertPath:string, fragPath:string) as this =
     /// <param name="data">The data to set</param>
     member this.SetVector3(name:string, data:Vector3) =
         GL.UseProgram(this.Handle)
-        GL.Uniform3(_uniformLocations[name], data)
+        GL.Uniform3(this._uniformLocations[name], data)
             
             
     
