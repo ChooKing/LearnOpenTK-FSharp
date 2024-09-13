@@ -86,8 +86,6 @@ type Shader(vertPath:string, fragPath:string) as this =
             // and then add it to the dictionary.
             this._uniformLocations <- this._uniformLocations.Add(key, location)
             
-        printfn $"{this._uniformLocations}"
-            
     member this.compileShader(shader:int) =
         // Try to compile the shader
         GL.CompileShader(shader)
