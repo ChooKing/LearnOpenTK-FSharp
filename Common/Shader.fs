@@ -65,8 +65,7 @@ type Shader(vertPath:string, fragPath:string) as this =
 
         // First, we have to get the number of active uniforms in the shader.
         let mutable numberOfUniforms = 0
-        GL.GetProgram(this.Handle, GetProgramParameterName.ActiveUniforms, &numberOfUniforms)
-        printfn $"Number of uniforms: {numberOfUniforms}"
+        GL.GetProgram(this.Handle, GetProgramParameterName.ActiveUniforms, &numberOfUniforms)        
         
         // The original C# initializes the _uniformLocations Dictionary here
         // Omitted in the F# because it was already initialized above        
@@ -79,7 +78,7 @@ type Shader(vertPath:string, fragPath:string) as this =
         for i in 0..numberOfUniforms - 1 do
             // Original C# code discards two out parameters GL.GetActiveUniform(Handle, i, out _, out _)
             // get the name of this uniform,
-            let key = GL.GetActiveUniform(this.Handle, i, ref _i, ref _aut)
+            let key = GL.GetActiveUniform(this.Handle, i,  &_i, &_aut)
             
             // get the location,
             let location = GL.GetUniformLocation(this.Handle, key)
